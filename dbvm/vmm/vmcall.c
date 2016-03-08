@@ -380,12 +380,12 @@ int _handleVMCall(pcpuinfo currentcpuinfo, VMRegisters *vmregisters)
   hypervmsr.AsUINT64 = readMSR(0x40000001);
   if(hypervmsr.Enable) {
 	if(hypervmsr.GuestPhysicalAddress == VirtualToPhysical(vmread(vm_guest_rip))) {
-		void* input = input ? MapPhysicalMemory(vmregisters->rdx, currentcpuinfo->AvailableVirtualAddress) : 0;
-		void* output = output ? MapPhysicalMemory(vmregisters->r8, currentcpuinfo->AvailableVirtualAddress) : 0;
+		//void* input = input ? MapPhysicalMemory(vmregisters->rdx, currentcpuinfo->AvailableVirtualAddress) : 0;
+		//void* output = output ? MapPhysicalMemory(vmregisters->r8, currentcpuinfo->AvailableVirtualAddress) : 0;
 
-		__asm__ __volatile__("mov %0, %%r8" : : "r" (output) : "r8");
+		__asm__ __volatile__("mov %0, %%r8" : : "r" (vmregisters->r8) : "r8");
 		__asm__ __volatile__("vmcall" : "=a" (vmregisters->rax) :
-					     "c" (vmregisters->rcx), "d" (input));
+					     "c" (vmregisters->rcx), "d" (vmregisters->rdx));
 
 		vmwrite(vm_guest_rip,vmread(vm_guest_rip)+vmread(vm_exit_instructionlength));
 		return 0;
