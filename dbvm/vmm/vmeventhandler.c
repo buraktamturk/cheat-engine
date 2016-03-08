@@ -1440,7 +1440,6 @@ int handleWRMSR(pcpuinfo currentcpuinfo, VMRegisters *vmregisters)
 
   sendstring("emulating WRMSR\n\r");
 
-
   unsigned long long newvalue=((unsigned long long)vmregisters->rdx << 32)+vmregisters->rax;
   unsigned int msr=vmregisters->rcx;
 
@@ -1531,6 +1530,22 @@ int handleWRMSR(pcpuinfo currentcpuinfo, VMRegisters *vmregisters)
         break;
       }
 
+      // hypercall page
+      case 0x40000001:
+      {
+    	  union hv_x64_msr_hypercall_contents* contents = &newvalue;
+    	  if(contents->Enable) {
+
+    		  //contents->GuestPhysicalAddress = (unsigned char*)MapPhysicalMemory(newvalue >> 12 & 0xFFFFFFFFFFFFFFFF, currentcpuinfo->AvailableVirtualAddress);
+
+    	  } else {
+
+    	  }
+      }
+      break;
+  	// hyper-v MSR's
+	case 0x40000000:
+	case 0x40000002 ... 0x40000105:
     default:
       //probably a mttr access.
       //just do it but flush the tlb if paging is enabled
@@ -1614,6 +1629,32 @@ int handleRDMSR(pcpuinfo currentcpuinfo, VMRegisters *vmregisters)
 
       break;
     }
+
+    // hypercall page
+    case 0x40000001:
+    {
+    	result = readMSR(msr);
+
+    	union hv_x64_msr_hypercall_contents* contents = &result;
+    	if(contents->Enable) {
+
+    	}
+
+
+		//void* addr = (unsigned char*)MapPhysicalMemory(result >> 12 & 0xFFFFFFFFFFFFFFFF, currentcpuinfo->AvailableVirtualAddress);
+
+
+
+    }
+
+
+    	break;
+
+    // hyper-v MSR's
+    case 0x40000000:
+    case 0x40000002 ... 0x40000105:
+		result = readMSR(msr);
+	break;
 
     default:
       nosendchar[getAPICID()]=0;

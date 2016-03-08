@@ -515,8 +515,14 @@ typedef volatile struct _cpuinfo
 } tcpuinfo, *pcpuinfo; //allocated when the number of cpu's is known
 tcpuinfo cpuinfo[32];
 
-
-
+union hv_x64_msr_hypercall_contents {
+	QWORD AsUINT64;
+	struct {
+		QWORD Enable:1;
+		QWORD Reserved:11;
+		QWORD GuestPhysicalAddress:52;
+	};
+};
 
 typedef struct
 {
